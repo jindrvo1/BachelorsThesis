@@ -1,0 +1,40 @@
+\chapter{Simulated Annealing}
+\label{ch:simulated_annealing}
+This appendix serves to provide a more thorough explanation of the probabilistic technique for approximating the global optimum of a function called Simulated Annealing, which has been used for Elo's parameter optimization in \ref{sec:simulated_annealing}.
+
+When searching through the state space of a function, algorithms tend to get stuck in a local optimum of given function. This obviously leads to never finding the desired global optimum. Examples of such algorithms can be Hill climbing \citep{RussellArtificialIntelligenceModern2003} or Greedy algorithm \citep{CormenIntroductionAlgorithmsThird2009}. To overcome the obstacle, Simulated Annealing introduces searching the space using \textit{temperature}, which is initialized at a user-defined high number, letting the algorithm to consider more possibilities of the search space, while iteratively cooling down, leading to targeting the algorithm's focus into a more narrow area and eventually improving current result.
+
+\noindent Note that the algorithm decides whether to accept a new solution by comparing a randomly generated number with a probability based on current temperature and the fitness of the solution. This does not apply on better solutions, which are always accepted. This lets the algorithm focus on the best solution, while providing a possibility of considering also worse solutions, which can be helpful when stuck in a local optimum.
+
+\noindent Although the function for calculating acceptance probability can be defined in many ways, as \citep{KirkpatrickOptimizationSimulatedAnnealing1983} suggest, the following function is usually used.
+
+\begin{equation*}
+P(e, e', T) = 
+\begin{cases}
+1 & e' < e \\
+\exp\left(\frac{-(e'-e)}{T}\right) & otherwise
+\end{cases}
+\end{equation*}
+
+\indent With $e$ and $e'$ being \textit{energy} of current and new solutions, respectively, which is to be minimized, and T the current temperature.
+
+To finalize the description, a pseudocode of Simulated Annealing is provided.
+
+\begin{algorithm}[H]
+\begin{algorithmic}
+\State $s \gets s_0$
+\Comment{Assign initial state}
+\State $T \gets T_0$
+\Comment{Assign initial temperature}
+\While{T > 1}
+	\State $T \gets T*(1-c)$
+	\Comment{Cool temperature by cooling rate}
+	\State $s_{new} \gets neighbour(s)$
+	\If{$P(E(s), E(s_{new}), T) \geq random(0, 1)$}
+		\State $s \gets s_{new}$
+		\Comment{Accept new solution}
+	\EndIf
+\EndWhile
+\State \Return $s$
+\end{algorithmic}
+\end{algorithm}

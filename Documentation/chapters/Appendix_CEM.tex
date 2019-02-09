@@ -1,0 +1,40 @@
+\chapter{Cross-entropy method}
+\label{ch:cross_entropy_method}
+The cross-entropy method is a Monte Carlo approach to solving optimization problems and rare-event simulations. It was introduced by \citet{RubinsteinCrossEntropyMethodCombinatorial1999} as an extension to his earlier work focused on variance minimization methods for rare-event probability estimation.
+
+The method is based on an iterative procedure which consists of two phases:
+
+\begin{enumerate}
+\item Generate a random data sample according to specified attributes.
+\item Update the attributes according to best results of data generated in the first step.
+\end{enumerate}
+
+\examplespace
+\begin{example}
+An appropriate example can be found in the application on soccer data. In order to find the best parameters in \eqref{eq:expected_score_altered}, the initial parameters are set to the Elo default values as seen in \eqref{eq:expected_score}.
+
+In the first phase, numerous two-dimensional normal distributions are randomly generated. In the second phase, the log-likelihood errors are calculated using the parameteres given by said distributions and afterwards, the initial attributes are updated based on the best results (i.e. lowest errors).
+
+Note that the algorithm is not limited to be used with normal distribution, nor log-likelihood loss. The methods are to be chosen accordingly to the task's nature. 
+\end{example}
+
+To obtain a better picture of the cross-entropy method implementation, a pseudocode for continuous optimization is provided:
+
+\begin{algorithm}[H]
+\begin{algorithmic}
+\State $v_0 \gets u$
+\Comment{Assign initial parameters} 
+\State $T \gets 0$
+\Comment{Number of iterations}
+\State $t \gets 0$
+\Comment{Iteration counter}
+\While{t < T}
+	\State Generate a sample $X_1, \cdots, X_N$ from the density $f(\cdot, v_t)$
+	\State Compute the fitnesses of $X_1, \cdots, X_N$
+	\State Recognize $n < N$ best results from $X_1, \cdots, X_N$
+	\State Set $v_{t+1}$ according to the results recognized in previous step
+	\State $t = t + 1$
+\EndWhile
+\State \Return $v_t$
+\end{algorithmic}
+\end{algorithm}

@@ -1,0 +1,30 @@
+\chapter{Conclusion}
+\label{ch:conclusion}
+Throughout the thesis, we have analyzed and implemented several ranking algorithms divided into two categories of online ranking algorithms and batch ranking algorithms. We have adapted said algorithms for soccer games and evaluated their ability to predict future games on real, publicly available data. 
+
+With dominant focus on the Elo ranking system, we have made an extension of the algorithm that is more efficient in ranking team games than an intuitive approach based on the idea of perceiving teams as individual players. Moreover, we have demonstrated several approaches for improving the algorithm's ability of predicting outcomes of future games, as well as approaches of shifting used distribution to better fit given data.
+
+Alongside the Elo ranking system, the adaptation of PageRank for soccer has been introduced. Although its prediction ability did not reach as high numbers as Elo, the concept of graph-based ranking algorithms provides an interesting approach for ranking soccer teams. Perhaps a more thorough analysis of said approach could lead to more promising results.
+
+The modern and popular field of artificial intelligence contributed with Supervised Learning for predicting outcomes of matches. Using Multilayer Perceptron, despite the results has shown to vary a lot depending on set parameters, a satisfactory prediction ability was achieved, especially considering the generality of Multilayer Perceptron. However, we have not managed to derive ratings of engaged players, as it has shown to be rather complex.
+
+Finally, a stochastic approch for ranking teams based on their previous encounters has been proposed. However the Maximum-likelihooh method is not capable of ranking individual players, maximizing the  likelihood of observing victory of a team led to an exceptional prediction ability.
+
+A brief overview of results of introduced algorithms follows, showing their ability to predict outcomes of matches, whether it treats a team as multiple individuals or a blackbox, and possibility of deriving ratings of both teams and individual players. The prediction ability values are in percentage.
+
+\begin{table}[H]
+\centering
+\caption{Overview of results} 
+\label{table:results_overview}
+\begin{tabular}{| l | c | c | c | c |}
+\hline
+\textbf{\thead{Algorithm}} & \textbf{\thead{Prediction\\ ability}} & \textbf{\thead{Multiple\\ players}} & \textbf{\thead{Team\\ ratings}} & \textbf{\thead{Players\\ ratings}} \\ \hline
+Elo & 44.59 & \ding{53} & \ding{51} & \ding{53} \\ \hline
+Elo for teams & up to 53.72 & \ding{51} & \ding{51} & \ding{51} \\ \hline
+PageRank & up to 38.34 & \ding{53} & \ding{51} & \ding{53} \\ \hline
+Multilayer Perceptron & \textasciitilde 45 & \ding{51} & \ding{53} & \ding{53} \\ \hline
+Maximum likelihood & 55.82 & \ding{53} & \ding{51} & \ding{53} \\ \hline
+\end{tabular}
+\end{table}
+
+Note that every algorithm has its own specifications, be it its high performance only when draws are ignored or its tight connection to used data. Therefore, \autoref{table:results_overview} is strictly meant to provide an overview of used algorithms, not their comparison.

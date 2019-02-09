@@ -1,0 +1,210 @@
+\documentclass[twoside]{ctuthesis}
+
+\ctusetup{
+	mainlanguage = english,
+	title-english = {A statistical evaluation of player or team performance},
+	doctype = B,
+	faculty = F8,
+	department-english = {Department of Applied Mathematics},
+	author = {Vojtěch Jindra},
+	supervisor = {MSc. Juan Pablo Maldonado Lopez, Ph.D.},
+	fieldofstudy-english = {Informatics},
+	subfieldofstudy-english = {Knowledge Engineering},
+	keywords-english = {ranking, rating, ranking algorithms, ranking systems, soccer, skill, performance},
+	keywords-czech = {hodnocení, hodnotící algoritmy, hodnotící systémy, fotbal, dovednost},
+	day = 10,
+	month = 2,
+	year = 2017,
+	specification-file = {assignment.pdf},
+	front-specification = false,
+%	front-list-of-figures = false,
+%	front-list-of-tables = false,
+%	monochrome = true,
+%	layout-short = true,
+}
+
+\ctuprocess
+
+\addto\ctucaptionsczech{%
+	\def\supervisorname{Vedoucí}%
+	\def\subfieldofstudyname{Studijní program}%
+}
+
+\ctutemplateset{maketitle twocolumn default}{
+	\begin{twocolumnfrontmatterpage}
+		\ctutemplate{twocolumn.thanks}
+		\ctutemplate{twocolumn.declaration}
+		\ctutemplate{twocolumn.abstract.in.titlelanguage}
+		\ctutemplate{twocolumn.abstract.in.secondlanguage}
+		\ctutemplate{twocolumn.tableofcontents}
+		\ctutemplate{twocolumn.listoffigures}
+	\end{twocolumnfrontmatterpage}
+}
+
+\usepackage{amsthm}
+\usepackage[framemethod=tikz]{mdframed}
+\makeatletter
+\AtBeginDocument{%
+\@ifpackageloaded{amsthm}%
+ {%
+  \renewrobustcmd\mdf@patchamsthm{%
+   \chardef\kludge@catcode@hyphen=\catcode`\-
+   \catcode`\-=12
+   \let\mdf@deferred@thm@head\deferred@thm@head
+   \pretocmd{\deferred@thm@head}{\@inlabelfalse}%
+      {\mdf@PackageInfo{mdframed detected package amsthm ^^J%
+                        changed the theorem header of amsthm\MessageBreak}%
+      }{%
+       \mdf@PackageError{mdframed detected package amsthm ^^J%
+                         changed the theorem header of amsthm
+                         failed\MessageBreak}%
+       }%
+   \catcode`\-=\kludge@catcode@hyphen
+     }%
+ }{}%
+}
+\makeatother
+\makeatletter
+\renewcommand*\env@matrix[1][\arraystretch]{%
+  \edef\arraystretch{#1}%
+  \hskip -\arraycolsep
+  \let\@ifnextchar\new@ifnextchar
+  \array{*\c@MaxMatrixCols c}}
+\makeatother
+\definecolor{ctu-blue}{RGB}{48, 122, 188}
+\DeclareUnicodeCharacter{FB01}{fi}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[chapter]
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}{Proposition}
+\mdfdefinestyle{blueline}{
+  hidealllines=true,
+  leftline=true,
+  innerleftmargin=10pt,
+  innerrightmargin=10pt,
+  linecolor=ctu-blue,
+  skipabove=20pt
+}
+\surroundwithmdframed[style=blueline]{proposition}
+\surroundwithmdframed[style=blueline]{proof}
+\newtheorem{example}{Example}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{conjecture}[theorem]{Conjecture}
+
+\theoremstyle{note}
+\newtheorem*{remark*}{Remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\usepackage[a-1b]{pdfx}
+\usepackage{hyperref}
+\usepackage{pdfpages}
+\usepackage{listings}
+\usepackage{pythonhighlight}
+\usepackage[pagewise]{lineno}
+\usepackage{pifont}
+\usepackage{makecell}
+\usepackage{relsize}
+\usepackage{csquotes}
+\usepackage[backend=biber, natbib=true, style=iso-authoryear]{biblatex}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{multirow}
+\usepackage{tabularx}
+\allowdisplaybreaks
+\usepackage{dirtree} 
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{float}
+\usepackage{tkz-graph}
+\usetikzlibrary{arrows.meta}
+\tikzset{
+  LabelStyle/.style = {text = black, font = \bfseries },
+  VertexStyle/.style = {circle, draw=black!50, black, inner sep=5pt,
+                                font = \Large\bfseries},
+  EdgeStyle/.style = {black, ->, >={Latex[width=3mm,length=3mm]}} }
+\usepackage{tikz}
+\tikzstyle{vertex}=[auto=left,circle,draw=black!50,black, inner sep=3pt]
+\tikzset{weights/.style={vertex,rectangle}}
+\tikzset{note/.style={vertex,rectangle,draw=white}}
+
+\usepackage{calc}
+\newlength{\depthofsumsign}
+\setlength{\depthofsumsign}{\depthof{$\sum$}}
+\newlength{\totalheightofsumsign}
+\newlength{\heightanddepthofargument}
+
+\newcommand{\nsum}[1][1.4]{% only for \displaystyle
+    \mathop{%
+        \raisebox
+            {-#1\depthofsumsign+1\depthofsumsign}
+            {\scalebox
+                {#1}
+                {$\displaystyle\sum$}%
+            }
+    }
+}
+
+% Abstract in Czech
+\begin{abstract-czech}
+V rámci této teze jsou představeny vybrané hodnotící algoritmy v kontextu týmových sportů. Cílem práce je nejen možnost generování predikcí výsledků zápasů, ale také obstarání odhadů schopností týmů a individuálních hráčů. Představené algoritmy jsou zdokonaleny, aby byly schopné správně predikovat větší množství zápasů, stejně tak jako jejich ostatní vlastnosti, které hodnotící algoritmus dělají dobrým hodnotícím algoritmem, jsou zdokonaleny. Mimoto, ke zlepšení hodnotících algoritmů jsou použity statistické metody, které jsou poté použity k vytvoření samostatného hodnotícího algoritmu.
+\end{abstract-czech}
+
+% Abstract in English
+\begin{abstract-english}
+In the thesis, we introduce multiple ranking algorithms in the context of team sports. Our goal is not only to be able to generate predictions for match outcomes, but to obtain an estimate of the skill of teams and individual players. We try to improve introduced algorithms to make them able to correctly predict more matches than their basic versions, and improve other qualities that make a ranking algorithm a good ranking algorithm. Moreover, in order to improve given algorithms, we use statistical methods which are later used to create a stand-alone ranking algorithm.
+\end{abstract-english}
+
+% Acknowledgements / Podekovani
+\begin{thanks}
+I would like to express my deepest gratitude to Pablo, my supervisor, for his valuable advice, as well as for always making the time to thoroughly answer all of my questions.
+\end{thanks}
+
+% Declaration / Prohlaseni
+\begin{declaration}
+I hereby declare that the presented thesis is my own work and that I have cited all sources of information in accordance with the Guideline for adhering to ethical principles when elaborating an academic final thesis.
+
+I acknowledge that my thesis is subject to the rights and obligations stipulated by the Act No. 121/2000 Coll., the Copyright Act, as amended, in particular that the Czech Technical University in Prague has the right to conclude a license agreement on the utilization of this thesis as school work under the provisions of Article 60(1) of the Act.
+
+In Prague, 14~February~2018
+\end{declaration}
+
+\raggedbottom
+\def\layersep{2.5cm}
+\def\examplespace{\vspace{2em}}
+
+\addbibresource{BachelorsThesis.bib}
+
+\expandafter\def\expandafter\normalsize\expandafter{%
+    \normalsize
+    \setlength\abovedisplayskip{10pt}
+    \setlength\belowdisplayskip{20pt}
+    \setlength\abovedisplayshortskip{10pt}
+    \setlength\belowdisplayshortskip{20pt}
+}
+
+\begin{document}
+
+\includepdf[pages={1}]{assignment.pdf}
+\newpage\null\thispagestyle{empty}\newpage
+
+\maketitle
+
+\include{chapters/Introduction}
+\include{chapters/OnlineRanking}
+\include{chapters/BatchRanking}
+\include{chapters/Realisation}
+\include{chapters/Conclusion}
+
+\printbibliography
+
+\appendix
+\include{chapters/Appendix_SA}
+
+\appendix
+\include{chapters/Appendix_CEM}
+
+\end{document}

@@ -1,0 +1,236 @@
+\chapter{Realisation}
+\label{ch:realisation}
+Throughout the thesis, a lot of analyses of big data have been performed, be it the scripts that have determined the quality of used algorithms, or the scripts used to generate the graphs serving as a graphical visualization of some information. Moreover, an Application Programming Interface (API) of some presented algorithm has been programmed, as well as a demo using the API to provide the reader a picture of how the algorithms work. 
+
+In this chapter, we provide a description of the technologies used to built mentioned tools.
+
+\section{Data analysis}
+Analysis of the data and determining results have been scripted in the Python 3.6.4 programming language, which is abundant on various packages and therefore can be used for multiple purposes. Some of the Python scripts have been developed in The Jupyter Notebook, in order to omit repetitive data preprocessing. However, once the scripts have been developed, they have been converted into Python files to provide more straightforward execution.
+
+All of the Python files used throughout the thesis for generating results are stored in \texttt{/Scripts} folder alongside with the SQLite database.
+
+\subsection{Used packages}
+Exploiting Python's multi-purposeness, numerous different packages have been used. Let us outline the most important packages and their applications.
+
+\begin{itemize}
+\item \textbf{sqlite3 2.6.0} provides an easy-to-use interface for working with SQLite databases. This was used to effortlessly load the necessary data stored in an SQLite database to undergo an analysis.
+
+\item \textbf{numpy 1.14.0} provides tools for scientific computing in Python. Multiple mathematical functions necessary for the computations have been provided by this package. Also, in several scripts, its arrays were used for storing data.
+
+\item \textbf{scipy 1.0.0} also provides tools for scientific computing in Python. The \texttt{scipy.optimize} package with the \texttt{minimization} function was used for multiple minimization tasks. Also, the \texttt{scipy.stats} with the  \texttt{norm} function was used for calculations with normal distributions.
+
+\item \textbf{pandas 0.22.0} provides high-performance, easy-to-use data structures. It was used as a more compatible data storage when built-in Python structures did not suffice.
+\end{itemize}
+
+\subsection{Usage}
+Most of the scripts have used a similar logic which shall be demonstrated by the following pseudocode.
+
+\begin{algorithm}[H]
+\begin{algorithmic}
+\State dataset $\gets$ contents of the SQLite file
+\While{dataset has rows}
+	\State team1 $\gets$ determine ratings of players from home team
+	\State team2 $\gets$ determine ratings of players from away team
+	\State outcome $\gets$ determine outcome
+	\State
+	\State predictions $\gets$ determine predictions using the API
+	\State determine the quality of predictions
+	\State
+	\State determine new ratings using the API
+	\State propagate and save new ratings to players
+\EndWhile
+\State output number of correctly predicted matches and log-likelihood loss
+\end{algorithmic}
+\end{algorithm}
+
+Although the code slightly differs for different scripts, most of the evaluations more or less follow the pseudocode above. An exception is made, of course, by the scripts that are used to analyze data as described in \ref{sec:data_analysis}
+
+\section{Graph plotting}
+Although the analysis have been made using Python scripts, the results have been processed by the R programming language, which suits the data graphical visualization better. A possible alternative would be to use the \texttt{matplotlib} package, which also provides tools for graphical visualization of data, however, R offers more advanced tools and therefore, more problems are solvable using R. 
+
+Version 3.4.3 of the R programming language has been used with RStudio 1.0.153.
+
+Despite of library abundance of the R programming language, all data visualization has been made using the \texttt{ggplot} library, which provides an intuitive approach to data visualization. Also, the \texttt{theme\textunderscore bw} from the \texttt{ggthemes} library has been applied onto the graphs for more appealing outputs.
+
+The R scripts used for generating the graphs in this thesis are accessible to the reader and can be found in \texttt{/Documentation/figs/scripts}.
+
+\section{Application Programming Interface}
+Alongside with the thesis, an API for several algorithms has been created. The API is programmed as a Python module and therefore can be imported into a Python script providing given rating algorithm's functions. The API was created in Python 3.6.4 and has several dependencies. Namely, in order for the API to work, following modules are required:
+
+\begin{itemize}
+\item numpy,
+\item scipy,
+\item random (built-in),
+\item math (built-in).
+\end{itemize}
+ 
+The files of the classes can be found at \texttt{/Scripts/RankingAlgorithms}.
+\subsection{Elo}
+The \texttt{RankingAlgorithms.Elo} class provides functions for computations with the Elo algorithm without any further extensions. Therefore, it is only suitable for one-on-one games. However, multiple possibilities of altering the algorithm are provided.
+
+Quick overview of the attributes and functions of Elo class is provided below followed by their description.
+
+\begin{python}
+class Elo:
+	__init__(k_factor = 32, distribution = "logistics", sigma = 2000/7, x = 10, y = 400)
+	predict_winner(r1, r2)
+	rate_match(r1, r2, s1, s2 = None)
+	
+	set_k_factor(k_factor)
+	get_k_factor()
+	set_distribution(distribution)
+	get_distribution()
+	set_sigma(sigma)
+	get_sigma()
+	set_x(x)
+	get_x()
+	set_y(y)
+	get_y()
+\end{python}
+
+\noindent The \texttt{\textunderscore \textunderscore init\textunderscore \textunderscore} function can be provided up to five named parameters. However, for the Elo equations as shown in \autoref{ch:elo_for_two_players} with $K$ factor of 32, no parameters are necessary. Follows the explanation of offered parameters.
+
+\begin{itemize}
+\item \textbf{k\textunderscore factor} parameter denotes what value of $K$ factor should be used in the update equation. The $K$ factor is more thoroughly explained in \ref{sec:k_factor}. Note that the value can be changed using appropriate setter function, which could be, in the case of $K$ factor, desired.
+
+\item \textbf{distribution} parameter offers the possibility of changing used distribution from logistics to normal. Note that only those two distributions are allowed.
+
+\item \textbf{sigma} parameter is only important when the normal distribution is used. It denotes the distribution's standard deviation. The default value of $2000/7$ is provided as per Arpad Elo's original algorithm.
+
+\item \textbf{x} and \textbf{y} parameters are only important if the logistics distribution is used. It denotes the $x$ and $y$ values as shown in \eqref{eq:expected_score_altered}.
+\end{itemize}
+
+\noindent The \texttt{predict\textunderscore winner} function accepts two players' ratings \texttt{r1} and \texttt{r2} and returns a \texttt{tuple} of predictions of victory for both players. The prediction is computed using appropriate parameters as defined in the \texttt{\textunderscore \textunderscore init\textunderscore \textunderscore} function.
+
+\noindent The \texttt{rate\textunderscore match} function accepts two rating \texttt{r1} and \texttt{r2} alongside with outcome of the match \texttt{s1} and \texttt{s2}, relatively to given players. Note that the outcome of second player can be omitted, since it can be usually calculated as $1 - s_1$.
+
+\noindent The rest of the functions are standard setter and getter functions for the five attributes of the class.
+
+\subsection{Elo for teams}
+The extension for teams as explained in \ref{section:elo_for_teams} is a further ranking algorithm provided by the API. The class \texttt{RankingAlgorithms.EloForTeams} provides a similar functionality as the \texttt{Elo} class, however, it also provides possibility of finding attributes that better fits given data.
+
+More thorough explanation will be provided after a quick overview of the classes attributes and functions.
+
+\begin{python}
+class EloForTeams:
+	__init__(k_factor = 32, distribution = "logistics", sigma = 2000/7, x = 10, y = 400)
+	predict_winner(t1, t2)
+	rate_match(t1, t2, s_t1, s_t2 = None)
+	teams_ratings(t1, t2)
+	CEM_train(tr)
+	CEM_predict_trained(t1, t2, sigma = None, x = None, y = None)
+	SA_train(tr)
+	SA_predict_trained(t1, t2, sigma = None, x = None, y = None)
+	
+	set_k_factor(k_factor)
+	get_k_factor()
+	set_distribution(distribution)
+	get_distribution()
+	set_sigma(sigma)
+	get_sigma()
+	set_x(x)
+	get_x()
+	set_y(y)
+	get_y()
+\end{python}
+
+\noindent The \texttt{\textunderscore \textunderscore init\textunderscore \textunderscore} function performs exactly the same task as in the \texttt{Elo} class explained above, as well as the parameters serve the same cause.
+
+\noindent The \texttt{predict\textunderscore winner} function accepts as arguments ratings of players of home team as \texttt{t1} and away team as \texttt{t2}. The ratings are expected to be in the form of standard Python \texttt{list} structure, and the return value of the function is a \texttt{tuple} of predictions of victory for both teams.
+
+\noindent The \texttt{rate\textunderscore match} expects rating of players of home team as \texttt{t1} and away team as \texttt{t2}. Again, both \texttt{t1} and \texttt{t2} are expected to be \texttt{list}s. The return value is a \texttt{tuple} of two \texttt{list}s with the players' new ratings. Note that the ratings are kept in the same order as presented to the functions.
+
+\noindent The \texttt{teams\textunderscore ratings} accepts ratings of players in home team as \texttt{t1} and away team as \texttt{t2} in the form of \texttt{list}s. The return value is a tuple of team ratings as calculated by \eqref{eq:obtaining_teams_rating}.
+
+\noindent Both \texttt{CEM\textunderscore train} and \texttt{SA\textunderscore train} serve the same purpose. The argument \texttt{tr} is \texttt{list} of \texttt{tuple}s, each containing three variables. The first variable is a \texttt{list} of ratings of players in home team, second ratings of players of away team and the third is the outcome of the game. The functions performs either cross-entropy method or simulated annealing, as determined by the name of the function, to identify better parameters for given data of either the normal or logistic distribution, whichever is used. The cross-entropy method uses the cross-entropy error function as the fitness function, while simulated annealing uses log-likelihood loss function. Note that both methods are based on randomness and therefore, the results may differ throughout multiple runs. Both functions return either \texttt{tuple} of appropriate $x$ and $y$ if logistic distribution is used, or appropriate standard deviation if normal distribution is used.
+
+\noindent The \texttt{CEM\textunderscore predict\textunderscore trained} and \texttt{SA\textunderscore predict \textunderscore trained} functions are used to predict the probability of victory of home team and away team. The ratings of players in home team are expected to be passed to \texttt{t1} and ratings of players in away team to \texttt{t2} as \texttt{list}s. The \texttt{sigma} attribute should be passed if the class uses normal distribution and \texttt{x} and \texttt{y} should be passed if it uses logistic distribution. Note that the \texttt{x} and \texttt{y} should be the $x$ and $y$ obtained from the training functions. Both functions return probabilities of home team and away team victory in a \texttt{tuple}.
+
+\noindent The rest of the functions are standard setter and getter functions for the attributes of the class.
+
+\subsection{PageRank}
+As the PageRank algorithm falls under the category of batch ranking algorithms, the procedure of evaluating ratings slightly differs. Firstly, all of the matches have to be presented to the algorithm in order to build the graph of relationships of teams. Then, the matches are evaluated in order to calculate the ratings. The API is adapted to this accordingly.
+
+\begin{python}
+class Pagerank:
+	__init__(d = 01.5)
+	add_match(t1, t2, s1, s2)
+	calculate_pagerank(weighting_function = 0)
+	
+	get_d()
+	set_d(d)
+\end{python}
+
+\noindent The \texttt{\textunderscore\textunderscore init\textunderscore\textunderscore} function takes the \texttt{d} argument to set the damping factor as explained in \ref{sec:pagerank}.
+
+\noindent The \texttt{add\textunderscore match} function takes the identifier of home and away team as \texttt{t1} and \texttt{t2}, respectively, alongisde with their score \texttt{s1} and \texttt{s2}. Note that in contrary to the Elo algorithm, where score represented the outcome of a game by either 1, 0 or 0.5, the PageRank algorithm uses number of scored goals.
+
+\noindent The \texttt{calculate\textunderscore pagerank} function calculates the actual ratings of the teams based on the information provided using \texttt{add\textunderscore match}. The \texttt{weighting\textunderscore function} parameter determines the function used as a weighting function. The functions are described in \ref{sec:pagerank}.
+
+\noindent THe \texttt{get\textunderscore d} and \texttt{set\textunderscore d} methods are usual setter and getter functions.
+
+\section{Demo}
+To demonstrate the functionality of the ranking algorithms' API described in previous section, a simple demo web application is provided. The demo has been built using Django 2.0.4, a high-level Python web framework. 
+
+The goal of the demo is to provide a user-friendly web application that allows the user to add players and simulate matches between them to see the progress of their ratings for different ranking algorithms. This should lead the user to a better understanding of the ranking algorithms. The web applications also provides a visualization of ratings to offer the user an easier way to understand the algorithms.
+
+\section{Django}
+The Django web framework is an easy-to-use Python framework that offers a way to create web applications using the Model-view-controller architecture. It commits to the \textit{Don't-repeat-yourself} philosophy, which impels the programmer not to repeat similar pieces of code and provides suitable tools to avoid doing so. As mentioned, the Django framework offers the MVC architecture, which divides the programming part into three parts:
+
+\subsection{Model}
+The model layer directly manages the data and thanks to the Object-relation mapping, provides objects directly representing the database state.
+
+For the demo, the model was the most important part to be coded correctly. With that in mind, following models were created. Note that the models are actually more complicated, but for the sake of simplicity, they are presented in a clearer form.
+
+\begin{python}
+class Algorithm:
+	id (integer)
+	algorithm (varchar)
+	
+class Player:
+	id (integer)
+	first_name (varchar)
+	last_name (varchar)
+	
+class Match:
+	id (integer)
+	home_score (integer)
+	away_score (integer)
+	algorithm (FK.Algorithm)
+	
+class Rating:
+	id (integer)
+	player (FK.Player)
+	rating (integer)
+	algorithm (FK.Algorithm)
+	match (FK.Match)
+	home_team (boolean)
+	away_team (boolean)
+	
+class PageRankMatch:
+	id (integer)
+	home_team (FK.Player)
+	away_team (FK.Player)
+	home_score (integer)
+	away_score (integer)
+\end{python}
+
+The \texttt{Algorithm} class holds used algorithms by simply specifying their name. However more algorithms can be added, the code of the demo would have to be adjusted in order for them to work correctly. This is because every algorithm is based on a slightly different logic and a simple model like this is unable of processing them all.
+
+The \texttt{Player} class is a model for players participating in the demo. Additional players can be added to take part in matches.
+
+The \texttt{Match} class stores matches rated using the Elo and Elo for teams algorithms. The \texttt{home\textunderscore score} and \texttt{away\textunderscore score} attributes hold the number of goals scored by home and away team, respectively, and the \texttt{algorithm} attribute refers to used Algorithm (i.e. either Elo or Elo for teams).
+
+The \texttt{Rating} class stores the history of all ratings that players have had. It is tied to both the player by the \texttt{player} attribute and the used algorithm by \texttt{algorithm}. Also, it is denoted by the \texttt{match} attribute what match has the player tied to the rating participated in as well as whether he played in the home or away team. An object of this class can be though of as of record of a player's state in a point of time. Note that this class is not used by the PageRank algorithm, since it uses slightly different logic.
+
+The \texttt{PageRankMatch} class represents a match for the PageRank algorithm. The main difference to the \texttt{Match} class is that it does not use the \texttt{Rating} class to hold players ratings and instead refers to players directly.
+
+\subsection{View}
+The view layer is responsible for displaying the data as provided by given controller. The view layer defines what the user actually sees and how does the web application appears. Also, it provides the user with an option of submitting an input.
+
+In the web application, the view layer is presented in form of HTML templates and its exact form is somewhat insignificant. The purpose of the view layer is to present the processed data in an appealing form, which is, however, for our task, irrelevant.
+
+\subsection{Controller}
+The controller layer provides the logical relation between models and views and processes user input. Generally, any business logic fits the purpose of a controller.
+
+In the demo, the controller processes the data as provided by the user, recalculates ratings and tells the model which entities to save, create and retrieve. Therefore, the controller layer is the only layer actually using the API for ranking algorithms.
